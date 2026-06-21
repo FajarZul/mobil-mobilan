@@ -1,0 +1,17 @@
+Library/
+Temp/
+Logs/
+Obj/
+Build/
+Builds/
+UserSettings/
+
+.vscode/
+
+*.csproj
+*.sln
+*.slnx
+*.user
+*.tmp
+*.psd
+Assets/CartoonTracksPack1/Track1/Textures/road_normal.png
