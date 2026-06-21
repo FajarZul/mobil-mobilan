@@ -48,9 +48,21 @@ public class Car : MonoBehaviour
 
     private void GetInput()
     {
-        horizontalInput = Input.GetAxis("Horizontal");
-        verticalInput = Input.GetAxis("Vertical");
-        isBreaking = Input.GetKey(KeyCode.Space);
+    horizontalInput = Input.GetAxis("Horizontal");
+    verticalInput = Input.GetAxis("Vertical");
+    isBreaking = Input.GetKey(KeyCode.Space);
+    
+    if (MobileInputManager.Instance != null)
+    {
+        if (Mathf.Abs(MobileInputManager.Instance.Horizontal) > 0.01f)
+            horizontalInput = MobileInputManager.Instance.Horizontal;
+
+        if (Mathf.Abs(MobileInputManager.Instance.Vertical) > 0.01f)
+            verticalInput = MobileInputManager.Instance.Vertical;
+
+        if (MobileInputManager.Instance.IsBraking)
+            isBreaking = true;
+            }
     }
 
     private void HandleMotor()
