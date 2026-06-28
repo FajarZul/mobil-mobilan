@@ -5,21 +5,16 @@ using UnityEngine;
 public class Car : MonoBehaviour
 {
     private float horizontalInput, verticalInput;
-    private float currentSteerAngle, currentbreakForce;
-    private bool isBreaking;
+    private float currentSteerAngle, currentBrakeForce;
 
-    //setting
     [SerializeField] private float motorForce, breakForce, maxSteerAngle;
 
-    //wheelcollider
     [SerializeField] private WheelCollider frontLeftWheelCollider, frontRightWheelCollider;
     [SerializeField] private WheelCollider rearLeftWheelCollider, rearRightWheelCollider;
 
-    //wheels
     [SerializeField] private Transform frontLeftWheelTransform, frontRightWheelTransform;
     [SerializeField] private Transform rearLeftWheelTransform, rearRightWheelTransform;
 
-    // SPAWN POINT
     [SerializeField] private Transform spawnPoint;
 
     private Rigidbody rb;
@@ -39,30 +34,27 @@ public class Car : MonoBehaviour
 
     private void Update()
     {
-        // tekan R untuk respawn
         if (Input.GetKeyDown(KeyCode.R))
-        {
             RespawnCar();
-        }
     }
 
     private void GetInput()
     {
-    horizontalInput = Input.GetAxis("Horizontal");
-    verticalInput = Input.GetAxis("Vertical");
-    isBreaking = Input.GetKey(KeyCode.Space);
-    
-    if (MobileInputManager.Instance != null)
-    {
-        if (Mathf.Abs(MobileInputManager.Instance.Horizontal) > 0.01f)
-            horizontalInput = MobileInputManager.Instance.Horizontal;
+        horizontalInput = Input.GetAxis("Horizontal");
+        verticalInput = Input.GetAxis("Vertical");
 
-        if (Mathf.Abs(MobileInputManager.Instance.Vertical) > 0.01f)
-            verticalInput = MobileInputManager.Instance.Vertical;
+        if (MobileInputManager.Instance != null)
+        {
+            if (Mathf.Abs(MobileInputManager.Instance.Horizontal) > 0.01f)
+                horizontalInput = MobileInputManager.Instance.Horizontal;
 
-        if (MobileInputManager.Instance.IsBraking)
-            isBreaking = true;
-            }
+            if (Mathf.Abs(MobileInputManager.Instance.Vertical) > 0.01f)
+                verticalInput = MobileInputManager.Instance.Vertical;
+
+            // Tambahan respawn dari tombol mobile
+            if (MobileInputManager.Instance.IsRespawning)
+                RespawnCar();
+        }
     }
 
     private void HandleMotor()
@@ -70,23 +62,21 @@ public class Car : MonoBehaviour
         frontLeftWheelCollider.motorTorque = verticalInput * motorForce;
         frontRightWheelCollider.motorTorque = verticalInput * motorForce;
 
-        currentbreakForce = isBreaking ? breakForce : 0f;
-
-        ApplyBreaking();
+        currentBrakeForce = 0f;
+        ApplyBraking();
     }
 
-    private void ApplyBreaking()
+    private void ApplyBraking()
     {
-        frontLeftWheelCollider.brakeTorque = currentbreakForce;
-        frontRightWheelCollider.brakeTorque = currentbreakForce;
-        rearLeftWheelCollider.brakeTorque = currentbreakForce;
-        rearRightWheelCollider.brakeTorque = currentbreakForce;
+        frontLeftWheelCollider.brakeTorque = currentBrakeForce;
+        frontRightWheelCollider.brakeTorque = currentBrakeForce;
+        rearLeftWheelCollider.brakeTorque = currentBrakeForce;
+        rearRightWheelCollider.brakeTorque = currentBrakeForce;
     }
 
     private void HandleSteering()
     {
         currentSteerAngle = maxSteerAngle * horizontalInput;
-
         frontLeftWheelCollider.steerAngle = currentSteerAngle;
         frontRightWheelCollider.steerAngle = currentSteerAngle;
     }
@@ -103,30 +93,18 @@ public class Car : MonoBehaviour
     {
         Vector3 pos;
         Quaternion rot;
-
         wheelCollider.GetWorldPose(out pos, out rot);
-
         wheelTransform.rotation = rot;
         wheelTransform.position = pos;
     }
 
-    // =========================
-    // RESPAWN
-    // =========================
     private void RespawnCar()
-{
-    // Matikan gerakan physics sementara
-    rb.isKinematic = true;
-
-    // Reset velocity
-    rb.linearVelocity = Vector3.zero;
-    rb.angularVelocity = Vector3.zero;
-
-    // Reset posisi & rotasi
-    transform.position = spawnPoint.position;
-    transform.rotation = spawnPoint.rotation;
-
-    // Aktifkan lagi physics
-    rb.isKinematic = false;
-}
+    {
+        rb.isKinematic = true;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        transform.position = spawnPoint.position;
+        transform.rotation = spawnPoint.rotation;
+        rb.isKinematic = false;
+    }
 }
